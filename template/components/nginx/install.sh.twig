@@ -1,0 +1,7 @@
+RUN apt-get update \
+    && apt install -y curl \
+    && apt install -y ca-certificates \
+    && apt install -y lsb-release \
+    && echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+    | sudo tee /etc/apt/sources.list.d/nginx.list \
+
