@@ -66,6 +66,9 @@ RUN apt-get update \
     && apt-get install -y bzip2 \
     && apt-get install -y ssmtp \
     && apt-get install -y lsof \
+    && apt-get install -y htop \
+    && apt-get install -y strace \
+    && apt-get install -y nano \
     && apt-get install -y openssh-server \
     && apt-get install -y cron \
     && mkdir /var/run/sshd \
