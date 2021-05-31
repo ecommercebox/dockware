@@ -8,7 +8,6 @@
 {% block assets_install_shopware6 %}
 {% endblock %}
 
-
 {% block shopware %}
 RUN rm -rf /var/www/html/* \
     && wget {{ shopware.download_url }} -qq -O /var/www/shopware.zip \

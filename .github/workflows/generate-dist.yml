@@ -1,0 +1,37 @@
+name: Generate DIST files on Master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  install:
+    name: Generate Dist Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: make install
+
+      - name: ORCA Generate
+        run: make generate
+
+      - name: Copy to dist Version Folder
+        run: cd build && make generate-dist version=master
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+          git add ./.dist/versions/master
+
+          if git diff-index --quiet HEAD --; then
+              echo nothing changed in dist
+          else
+              git commit -m "Auto update dist files"
+              git push github HEAD:${GITHUB_REF}
+          fi
