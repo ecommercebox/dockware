@@ -1,5 +1,8 @@
 {
     "images": {
+        "fw": [
+            "fw/latest:latest"
+        ],
         "flex": [
             "flex/latest:latest"
         ],
