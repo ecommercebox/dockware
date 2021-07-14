@@ -310,8 +310,6 @@ COPY /config/pimpmylog/config.user.d /var/www/pimpmylog/config.user.d
 COPY /config/pimpmylog/config.user.json /var/www/pimpmylog/config.user.json
 RUN chown -R www-data:www-data /var/www/pimpmylog/
 
-    
-
 COPY ./assets/scripts/makefile /var/www/makefile
 COPY ./assets/scripts/bin /var/www/scripts/bin
 
@@ -338,7 +336,7 @@ RUN service mysql start && \
 # some images dont have that folder. make sure its there
 RUN mkdir -p /var/www/.composer \
     && chown www-data:www-data /var/www/.composer -R \
-    # find all files and folders owned by root and chwon to www-data
+    # find all files and folders owned by root and chown to www-data
     && find /var/www -group root -exec chown www-data:www-data {} \; \
     && find /var/www -user root -exec chown www-data:www-data {} \;
 

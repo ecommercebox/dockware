@@ -522,7 +522,7 @@ RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.
     && sudo dpkg -i filebeat-7.4.2-amd64.deb \
     && rm -f /filebeat-7.4.2-amd64.deb
 
-RUN sudo echo 'deb https://packages.tideways.com/apt-packages debian main' | sudo tee /etc/apt/sources.list.d/tideways.list \
+RUN sudo echo 'deb https://packages.tideways.com/apt-packages-main any-version main' | sudo tee /etc/apt/sources.list.d/tideways.list \
     && sudo wget -qO - https://packages.tideways.com/key.gpg | sudo apt-key add - \
     && sudo apt-get -y update  \
     && sudo apt-get -y install tideways-php tideways-daemon  \
@@ -545,8 +545,6 @@ COPY ./config/tideways/tideways.ini /etc/php/7.0/cli/conf.d/20-tideways.ini
 COPY ./config/tideways/tideways.ini /etc/php/5.6/fpm/conf.d/20-tideways.ini
 COPY ./config/tideways/tideways.ini /etc/php/5.6/cli/conf.d/20-tideways.ini
 
-    
-
 COPY ./assets/scripts/makefile /var/www/makefile
 COPY ./assets/scripts/bin /var/www/scripts/bin
 
@@ -560,7 +558,7 @@ RUN sh /var/www/scripts/bin/xdebug_disable.sh
 ##  INSTALL SHOPWARE
 ## ***********************************************************************
 RUN rm -rf /var/www/html/* \
-    && wget https://www.shopware.com/en/Download/redirect/version/sw6/file/install_v6.4.0.0_53c7ba74a3d915e6e8d045b59df1ae2922df15da.zip -qq -O /var/www/shopware.zip \
+    && wget https://www.shopware.com/en/Download/redirect/version/sw6/file/install_v6.4.2.1_eccc23da5632314390e2a3715afb72ab0a6d5ab9.zip -qq -O /var/www/shopware.zip \
     && sudo -u www-data sh -c 'unzip -q /var/www/shopware.zip -d /var/www/html' \
     && rm -rf /var/www/shopware.zip
 
@@ -573,9 +571,6 @@ RUN echo "APP_ENV=dev" >> /var/www/html/.env && \
     echo "COMPOSER_HOME=/var/www/html/var/cache/composer" >> /var/www/html/.env && \
     echo "SHOPWARE_ES_ENABLED=0" >> /var/www/html/.env && \
     chown www-data:www-data /var/www/html/.env
-
-RUN cd /var/www/scripts/shopware6 && php create_jwt.php && \
-    cd /var/www/html/config/jwt && chown www-data:www-data *
 
 RUN service mysql start && \
     # switch to default PHP before installing
@@ -608,17 +603,23 @@ RUN service mysql start && \
 COPY ./assets/shopware6/DockwareSamplePlugin /var/www/html/custom/plugins/DockwareSamplePlugin
 
 RUN service mysql start && \
-    chown -R www-data:www-data /var/www/html/custom/plugins/DockwareSamplePlugin && \
-    cd /var/www/html && sudo -u www-data sh -c 'php bin/console plugin:refresh' && \
-    cd /var/www/html && sudo -u www-data sh -c 'php bin/console plugin:install DockwareSamplePlugin' && \
-    cd /var/www/html && sudo -u www-data sh -c 'php bin/console plugin:activate DockwareSamplePlugin' && \
+    cd /var/www/html && php bin/console plugin:refresh && \
+    cd /var/www/html && php bin/console plugin:install DockwareSamplePlugin && \
+    cd /var/www/html && php bin/console plugin:activate DockwareSamplePlugin && \
     rm -rf /var/www/html/var/cache/* && \
     service mysql stop
+
+# sometimes there are permission problems
+# so make sure to assign them correctly again here
+RUN chown -R www-data:www-data /var/www/html/* && \
+    chmod -R 775 /var/www/html && \
+    cd /var/www/scripts/shopware6 && php create_jwt.php && \
+    cd /var/www/html/config/jwt && chown www-data:www-data *
 
 # some images dont have that folder. make sure its there
 RUN mkdir -p /var/www/.composer \
     && chown www-data:www-data /var/www/.composer -R \
-    # find all files and folders owned by root and chwon to www-data
+    # find all files and folders owned by root and chown to www-data
     && find /var/www -group root -exec chown www-data:www-data {} \; \
     && find /var/www -user root -exec chown www-data:www-data {} \;
 

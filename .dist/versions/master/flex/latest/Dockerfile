@@ -576,7 +576,7 @@ RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.
     && sudo dpkg -i filebeat-7.4.2-amd64.deb \
     && rm -f /filebeat-7.4.2-amd64.deb
 
-RUN sudo echo 'deb https://packages.tideways.com/apt-packages debian main' | sudo tee /etc/apt/sources.list.d/tideways.list \
+RUN sudo echo 'deb https://packages.tideways.com/apt-packages-main any-version main' | sudo tee /etc/apt/sources.list.d/tideways.list \
     && sudo wget -qO - https://packages.tideways.com/key.gpg | sudo apt-key add - \
     && sudo apt-get -y update  \
     && sudo apt-get -y install tideways-php tideways-daemon  \
@@ -599,8 +599,6 @@ COPY ./config/tideways/tideways.ini /etc/php/7.0/cli/conf.d/20-tideways.ini
 COPY ./config/tideways/tideways.ini /etc/php/5.6/fpm/conf.d/20-tideways.ini
 COPY ./config/tideways/tideways.ini /etc/php/5.6/cli/conf.d/20-tideways.ini
 
-    
-
 COPY ./assets/scripts/makefile /var/www/makefile
 COPY ./assets/scripts/bin /var/www/scripts/bin
 
@@ -611,7 +609,7 @@ RUN sh /var/www/scripts/bin/xdebug_disable.sh
 # some images dont have that folder. make sure its there
 RUN mkdir -p /var/www/.composer \
     && chown www-data:www-data /var/www/.composer -R \
-    # find all files and folders owned by root and chwon to www-data
+    # find all files and folders owned by root and chown to www-data
     && find /var/www -group root -exec chown www-data:www-data {} \; \
     && find /var/www -user root -exec chown www-data:www-data {} \;
 
